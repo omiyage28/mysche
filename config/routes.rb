@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   root "top#index"
 
    get "/schedules", to: "top#index"
+   get "/sign_in", to: "top#index"
+
   
   namespace :api, { format: "json" } do 
     namespace :v1 do

@@ -26,6 +26,10 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.0.96",
+    "css-loader": "^4.3.0",
+    "node-sass": "^9.0.0",
+    "sass-loader": "^9.0.3",
+    "style-loader": "^2.0.0",
     "webpack-dev-server": "^3"
   }
 }
