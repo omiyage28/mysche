@@ -8,6 +8,7 @@
           outlined
           dense
           required
+          color="black"
         ></v-text-field>
         <v-text-field
           class="mt-4"
@@ -19,19 +20,20 @@
           counter
           outlined
           dense
+          color="black"
         ></v-text-field>
-        <v-row no-gutters justify="center" class="mt-4">
-          <v-btn :disabled="!valid" class="btn" color="secondary">
-            <v-icon class="mr-2"> mdi-login </v-icon>
-            サインイン</v-btn
-          >
-        </v-row>
-        <v-row no-gutters class="my-4" justify="end">
-          <router-link to="/users/passwords/reset" class="link"
-            >パスワードを忘れた方はこちら</router-link
-          >
-        </v-row>
       </v-form>
+      <v-row no-gutters justify="center">
+        <v-btn :disabled="!valid" color="secondary" class="black--text">
+          <v-icon class="mr-2"> mdi-login </v-icon>
+          サインイン</v-btn
+        >
+      </v-row>
+      <v-row no-gutters class="my-4" justify="end">
+        <router-link to="/password_reset" class="blue--text text--darken-2"
+          >パスワードを忘れた方はこちら</router-link
+        >
+      </v-row>
     </CommonFlame>
   </v-sheet>
 </template>
@@ -55,13 +57,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-@import "../../stylesheet/variable.scss";
-.link {
-  color: $main-color;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-</style>
+<style></style>

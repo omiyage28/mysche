@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
    get "/schedules", to: "top#index"
    get "/sign_in", to: "top#index"
+    get "/sign_up", to: "top#index"
+    get "/password_reset", to: "top#index"
 
   
   namespace :api, { format: "json" } do 

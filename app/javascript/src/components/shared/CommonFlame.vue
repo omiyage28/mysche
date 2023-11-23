@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="common-frame pb-2" elevation="0">
-    <div class="main-part" :style="{ maxWidth }">
+    <div class="mt-6 border-solid border border-secondary rounded">
       <v-app-bar color="primary" dense flat>
         <v-app-bar-title class="color-white text-h6 font-weight-bold">
           {{ title }}
@@ -32,21 +32,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-@import "../../stylesheet/variable.scss";
-.main-part {
-  border: solid 2px $main-color;
-  border-radius: 5px;
-  max-height: calc(100% - 84px);
-  margin: 0 auto;
-}
-.part-main {
-  position: relative;
-}
-.common-frame {
-  &:first-child {
-    margin-top: 16px;
-  }
-}
-</style>

@@ -89,7 +89,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style>
 .main-body {
   margin-top: 70px;
 }
