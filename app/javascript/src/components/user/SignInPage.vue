@@ -34,6 +34,11 @@
           >パスワードを忘れた方はこちら</router-link
         >
       </v-row>
+      <v-row no-gutters class="my-4" justify="end">
+        <router-link to="/sign_up" class="blue--text text--darken-2"
+          >サインアップ</router-link
+        >
+      </v-row>
     </CommonFlame>
   </v-sheet>
 </template>
