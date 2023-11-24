@@ -151,7 +151,7 @@
                 <v-btn
                   class="mt-4 black--text"
                   color="secondary"
-                  @click="createRequirement()"
+                  @click="createSchedule()"
                   >作成する</v-btn
                 >
               </v-row>
@@ -164,6 +164,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -179,6 +180,35 @@ export default {
       },
       menu: false,
     };
+  },
+
+  methods: {
+    createSchedule() {
+      const url = "/api/v1/schedules";
+
+      axios
+        .post(url, {
+          schedule: {
+            title: this.schedule.title,
+            description: this.schedule.description,
+            start_date: this.schedule.start_date,
+            start_time: this.schedule.start_time,
+            end_date: this.schedule.end_date,
+            end_time: this.schedule.end_time,
+            is_all_day: this.schedule.is_all_day,
+          },
+        })
+        .then((res) => {
+          this.dialog = false;
+          this.$store.dispatch("setFlash", {
+            type: "notice",
+            message: "予定を作成しました。",
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 };
 </script>

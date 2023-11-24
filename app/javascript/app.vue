@@ -3,7 +3,7 @@
     <v-navigation-drawer app v-model="drawer" clipped>
       <v-container>
         <div class="pa-5">
-          <AddScheduleDialog />
+          <ScheduleNewDialog />
         </div>
         <v-divider></v-divider>
         <v-list nav>
@@ -47,6 +47,7 @@
       </v-toolbar-items>
     </v-app-bar>
     <div class="main-body">
+      <FlaShMessage />
       <router-view></router-view>
     </div>
     <v-footer color="primary" app>
@@ -60,10 +61,13 @@
 </template>
 
 <script>
-import AddScheduleDialog from "./src/components/tops/AddScheduleDialog.vue";
+import ScheduleNewDialog from "./src/view/schedule/ScheduleNewDialog.vue";
+import FlaShMessage from "./src/view/shared/FlashMessage.vue";
+
 export default {
   components: {
-    AddScheduleDialog,
+    ScheduleNewDialog,
+    FlaShMessage,
   },
   data: () => ({
     drawer: false,

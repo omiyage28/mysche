@@ -12,6 +12,7 @@ import "vuetify/dist/vuetify.min.css";
 import Vuetify from "vuetify";
 import "@mdi/font/css/materialdesignicons.css";
 import colors from "vuetify/lib/util/colors";
+import store from "./store";
 
 // dayjs.locale("ja");
 // Vue.prototype.$dayjs = dayjs;
@@ -46,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const app = new Vue({
     router,
     vuetify,
+    store,
 
     render: (h) => h(App),
   }).$mount();

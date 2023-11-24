@@ -1,10 +1,10 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Top from "./src/components/tops/Top.vue";
-import Calendar from "./src/components/calendar/Calendar.vue";
-import SignInPage from "./src/components/user/SignInPage.vue";
-import SignUpPage from "./src/components/user/SignUpPage.vue";
-import PasswordResetPage from "./src/components/user/PasswordResetPage.vue";
+import Top from "./src/view/tops/Top.vue";
+import Calendar from "./src/view/calendar/Calendar.vue";
+import SignInPage from "./src/view/user/SignInPage.vue";
+import SignUpPage from "./src/view/user/SignUpPage.vue";
+import PasswordResetPage from "./src/view/user/PasswordResetPage.vue";
 
 Vue.use(Router);
 
