@@ -43,8 +43,8 @@
 
                 <v-col cols="6">
                   <v-menu
-                    ref="menu"
-                    v-model="menu"
+                    ref="menu1"
+                    v-model="menu1"
                     :close-on-content-click="true"
                     transition="scale-transition"
                     offset-y
@@ -60,7 +60,7 @@
                         readonly
                         v-bind="attrs"
                         v-on="on"
-                        @click="menu = true"
+                        @click="menu1 = true"
                         class="px-4"
                         color="black"
                       />
@@ -71,7 +71,7 @@
                       no-title
                       scrollable
                       locale="ja"
-                      @input="menu = false"
+                      @input="menu1 = false"
                     >
                     </v-date-picker>
                   </v-menu>
@@ -99,8 +99,8 @@
                 </v-col>
                 <v-col cols="6">
                   <v-menu
-                    ref="menu"
-                    v-model="menu"
+                    ref="menu2"
+                    v-model="menu2"
                     :close-on-content-click="true"
                     transition="scale-transition"
                     offset-y
@@ -116,7 +116,7 @@
                         readonly
                         v-bind="attrs"
                         v-on="on"
-                        @click="menu = true"
+                        @click="menu2 = true"
                         class="px-4"
                         color="black"
                       />
@@ -127,7 +127,7 @@
                       no-title
                       scrollable
                       locale="ja"
-                      @input="menu = false"
+                      @input="menu2 = false"
                     >
                     </v-date-picker>
                   </v-menu>
@@ -178,7 +178,8 @@ export default {
         end_date: "",
         end_time: "",
       },
-      menu: false,
+      menu1: false,
+      menu2: false,
     };
   },
 
@@ -186,23 +187,35 @@ export default {
     createSchedule() {
       const url = "/api/v1/schedules";
 
+      // リクエストボディ
+      const schedule = {
+        schedule: {
+          title: this.schedule.title,
+          description: this.schedule.description,
+          start_date: this.schedule.start_date,
+          start_time: this.schedule.start_time,
+          end_date: this.schedule.end_date,
+          end_time: this.schedule.end_time,
+          is_all_day: this.schedule.is_all_day,
+        },
+      };
+
+      // リクエストヘッダー
+      const headers = {
+        headers: {
+          "access-token": localStorage.getItem("access-token"),
+          client: localStorage.getItem("client"),
+          uid: localStorage.getItem("uid"),
+        },
+      };
+
       axios
-        .post(url, {
-          schedule: {
-            title: this.schedule.title,
-            description: this.schedule.description,
-            start_date: this.schedule.start_date,
-            start_time: this.schedule.start_time,
-            end_date: this.schedule.end_date,
-            end_time: this.schedule.end_time,
-            is_all_day: this.schedule.is_all_day,
-          },
-        })
+        .post(url, schedule, headers)
         .then((res) => {
           this.dialog = false;
           this.$store.dispatch("setFlash", {
             type: "notice",
-            message: "予定を作成しました。",
+            text: "予定を作成しました。",
           });
         })
         .catch((error) => {

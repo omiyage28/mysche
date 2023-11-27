@@ -7,6 +7,16 @@
         </div>
         <v-divider></v-divider>
         <v-list nav>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-account</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ login_user_name }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-divider></v-divider>
           <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name">
             <v-list-item-icon>
               <v-icon>{{ nav_list.icon }}</v-icon>
@@ -15,6 +25,14 @@
               <v-list-item-title @click="renderPage(nav_list)">
                 {{ nav_list.name }}</v-list-item-title
               >
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-icon>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title @click="signOut">ログアウト</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -63,6 +81,7 @@
 <script>
 import ScheduleNewDialog from "./src/view/schedule/ScheduleNewDialog.vue";
 import FlaShMessage from "./src/view/shared/FlashMessage.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -78,8 +97,9 @@ export default {
         icon: "mdi-calendar-check",
         page: "calendar",
       },
-      { name: "MY MEMO", icon: "mdi-pencil-box" },
+      { name: "メモ", icon: "mdi-pencil-box" },
     ],
+    login_user_name: localStorage.getItem("name"),
   }),
 
   methods: {
@@ -88,6 +108,30 @@ export default {
     },
     renderPage(nav_list) {
       this.$router.push({ name: nav_list.page });
+    },
+    signOut() {
+      axios
+        .delete("/auth/sign_out", {
+          headers: {
+            "access-token": localStorage.getItem("access-token"),
+            client: localStorage.getItem("client"),
+            uid: localStorage.getItem("uid"),
+          },
+        })
+        .then((res) => {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("client");
+          localStorage.removeItem("uid");
+          localStorage.removeItem("name");
+          this.$store.dispatch("setFlash", {
+            text: "ログアウトしました",
+            type: "notice",
+          });
+          this.$router.push("/sign_in");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };

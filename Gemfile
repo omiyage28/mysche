@@ -54,3 +54,7 @@ gem 'pry-rails'
 gem 'rails-i18n'
 
 gem 'ransack'
+
+gem 'devise'
+gem 'devise_token_auth'
+gem 'rack-cors'
