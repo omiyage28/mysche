@@ -11,6 +11,7 @@
           required
           color="black"
           v-model="user.name"
+          :rules="[rules.required]"
         ></v-text-field>
         <v-text-field
           class="mt-4"
@@ -20,6 +21,7 @@
           required
           color="black"
           v-model="user.email"
+          :rules="[rules.required, rules.emailFormat]"
         ></v-text-field>
         <v-text-field
           class="mt-4"
@@ -31,6 +33,7 @@
           dense
           color="black"
           v-model="user.password"
+          :rules="[rules.required, rules.passwordMin]"
         ></v-text-field>
         <v-text-field
           class="mt-4"
@@ -42,6 +45,7 @@
           dense
           color="black"
           v-model="user.password_confirmation"
+          :rules="[rules.required, rules.passwordMin]"
         ></v-text-field>
       </v-form>
       <v-row no-gutters justify="center">
@@ -68,6 +72,7 @@
 import CommonFlame from "../shared/CommonFlame.vue";
 import axios from "axios";
 import setItem from "../../auth/setItem";
+import rules from "../../helpers/rules";
 
 export default {
   components: {
@@ -82,11 +87,17 @@ export default {
       },
       valid: false,
       error: null,
+      rules,
     };
   },
   methods: {
     signUp() {
       this.error = null;
+
+      if (this.password != this.password_confirmation) {
+        this.error = "パスワードが一致しません。";
+        return;
+      }
 
       axios
         .post("/auth", {
@@ -104,7 +115,11 @@ export default {
           this.$router.push("/");
         })
         .catch((error) => {
-          this.error = "アカウントを登録できませんでした。";
+          if (error) {
+            this.error = "パスワードが一致しません。";
+          } else {
+            this.error = "アカウントを登録できませんでした。";
+          }
         });
     },
   },

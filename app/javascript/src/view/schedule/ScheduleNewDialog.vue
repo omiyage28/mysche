@@ -165,6 +165,9 @@
 
 <script>
 import axios from "axios";
+import setHeaders from "../../auth/setHeaders";
+import rules from "../../helpers/rules";
+
 export default {
   data() {
     return {
@@ -180,14 +183,15 @@ export default {
       },
       menu1: false,
       menu2: false,
+      rules,
     };
   },
 
   methods: {
     createSchedule() {
       const url = "/api/v1/schedules";
+      const headers = setHeaders();
 
-      // リクエストボディ
       const schedule = {
         schedule: {
           title: this.schedule.title,
@@ -199,15 +203,13 @@ export default {
           is_all_day: this.schedule.is_all_day,
         },
       };
-
-      // リクエストヘッダー
-      const headers = {
-        headers: {
-          "access-token": localStorage.getItem("access-token"),
-          client: localStorage.getItem("client"),
-          uid: localStorage.getItem("uid"),
-        },
-      };
+      // const headers = {
+      //   headers: {
+      //     "access-token": localStorage.getItem("access-token"),
+      //     client: localStorage.getItem("client"),
+      //     uid: localStorage.getItem("uid"),
+      //   },
+      // };
 
       axios
         .post(url, schedule, headers)
