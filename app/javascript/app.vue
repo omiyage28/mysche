@@ -22,7 +22,10 @@
               <v-icon>{{ nav_list.icon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title @click="renderPage(nav_list)">
+              <v-list-item-title
+                @click="renderPage(nav_list)"
+                class="cursor-pointer"
+              >
                 {{ nav_list.name }}</v-list-item-title
               >
             </v-list-item-content>
@@ -32,7 +35,9 @@
               <v-icon>mdi-logout</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title @click="signOut">ログアウト</v-list-item-title>
+              <v-list-item-title @click="signOut" class="cursor-pointer"
+                >ログアウト</v-list-item-title
+              >
             </v-list-item-content>
           </v-list-item>
         </v-list>

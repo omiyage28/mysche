@@ -81,10 +81,6 @@ export default {
         })
         .then((res) => {
           setItem(res.headers, res.data.data.name);
-          this.$store.dispatch("setFlash", {
-            text: "サインインしました",
-            type: "notice",
-          });
           this.$router.push("/top");
         })
         .catch((error) => {

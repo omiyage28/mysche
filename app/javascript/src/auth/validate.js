@@ -1,28 +1,44 @@
 import axios from "axios";
+import store from "../../packs/store";
 
-const validate = () => {
-  const uid = window.localStorage.getItem("uid");
-  const client = window.localStorage.getItem("client");
-  const accessToken = window.localStorage.getItem("access-token");
+export default function useValidate() {
+  const validate = () => {
+    const uid = localStorage.getItem("uid");
+    const client = localStorage.getItem("client");
+    const accessToken = localStorage.getItem("access-token");
+    let isAuthenticated = localStorage.getItem("authenticated");
 
-  return axios
-    .get("http://localhost:3000/auth/validate_token", {
-      headers: {
-        uid: uid,
-        "access-token": accessToken,
-        client: client,
-      },
-    })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-};
+    return axios
+      .get("auth/validate_token", {
+        headers: {
+          uid: uid,
+          "access-token": accessToken,
+          client: client,
+        },
+      })
+      .then((res) => {
+        if (isAuthenticated === "true") {
+          store.dispatch("setFlash", {
+            text: "サインインしました",
+            type: "notice",
+          });
+        }
+        localStorage.removeItem("authenticated");
+        return res;
+      })
+      .catch((err) => {
+        localStorage.removeItem("uid");
+        localStorage.removeItem("access-token");
+        localStorage.removeItem("client");
+        localStorage.removeItem("name");
+        store.dispatch("setFlash", {
+          text: "サインインしてください",
+          type: "alert",
+        });
 
-const useValidate = () => {
+        return Promise.reject("認証に失敗しました");
+      });
+  };
+
   return { validate };
-};
-
-export default useValidate;
+}

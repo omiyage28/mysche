@@ -7,25 +7,41 @@ import SignUpPage from "./src/view/user/SignUpPage.vue";
 import PasswordResetPage from "./src/view/user/PasswordResetPage.vue";
 import useValidate from "./src/auth/validate";
 
+Vue.use(Router);
+
 const { validate } = useValidate();
 
 const requireAuth = (to, from, next) => {
-  const uid = window.localStorage.getItem("uid");
-  const client = window.localStorage.getItem("client");
-  const accessToken = window.localStorage.getItem("access-token");
+  validate()
+    .then(() => {
+      next();
+    })
+    .catch((errorMessage) => {
+      console.log(errorMessage);
+      next({ name: "sign_in" });
+    });
+};
 
-  if (!uid || !client || !accessToken) {
-    console.log("ログインしていません");
-    next({ name: "sign_in" });
+const noRequireAuth = (to, from, next) => {
+  const uid = localStorage.getItem("uid");
+  const client = localStorage.getItem("client");
+  const accessToken = localStorage.getItem("access-token");
+
+  if (!uid && !client && !accessToken) {
+    next();
     return;
   }
 
-  validate();
-
-  next();
+  validate()
+    .then(() => {
+      // 認証が成功した場合
+      next({ name: "/" }); // 認証済みなのでチャットルームにリダイレクト
+    })
+    .catch(() => {
+      // 認証が失敗した場合
+      next(); // 現在のルートに留まる
+    });
 };
-
-Vue.use(Router);
 
 export default new Router({
   mode: "history",
@@ -34,6 +50,7 @@ export default new Router({
       path: "/sign_in",
       name: "sign_in",
       component: SignInPage,
+      beforeEnter: noRequireAuth,
     },
     {
       path: "/sign_up",
@@ -47,7 +64,7 @@ export default new Router({
     },
     {
       path: "/",
-      name: "top",
+      name: "root",
       component: Top,
       beforeEnter: requireAuth,
     },
@@ -55,6 +72,13 @@ export default new Router({
       path: "/schedules",
       name: "calendar",
       component: Calendar,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: "/top",
+      name: "top",
+      component: Top,
+      beforeEnter: requireAuth,
     },
   ],
 });
