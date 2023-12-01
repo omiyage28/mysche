@@ -34,12 +34,10 @@ const noRequireAuth = (to, from, next) => {
 
   validate()
     .then(() => {
-      // 認証が成功した場合
-      next({ name: "/" }); // 認証済みなのでチャットルームにリダイレクト
+      next({ name: "/" });
     })
     .catch(() => {
-      // 認証が失敗した場合
-      next(); // 現在のルートに留まる
+      next();
     });
 };
 
@@ -63,19 +61,13 @@ export default new Router({
       component: PasswordResetPage,
     },
     {
-      path: "/",
-      name: "root",
-      component: Top,
-      beforeEnter: requireAuth,
-    },
-    {
       path: "/schedules",
-      name: "calendar",
+      name: "schedules",
       component: Calendar,
       beforeEnter: requireAuth,
     },
     {
-      path: "/top",
+      path: "/",
       name: "top",
       component: Top,
       beforeEnter: requireAuth,

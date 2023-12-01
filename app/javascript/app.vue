@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer app v-model="drawer" clipped>
+    <v-navigation-drawer app v-model="drawer" clipped v-if="!isSignInPage">
       <v-container>
         <div class="pa-5">
           <ScheduleNewDialog />
@@ -48,26 +48,6 @@
       <v-toolbar-title>
         <div @click="$router.push('/')" class="cursor-pointer">マイスケ</div>
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-toolbar-items>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" text>Support<v-icon>mdi-menu-down</v-icon></v-btn>
-          </template>
-          <v-list>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Consulting and support</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Discord community</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-toolbar-items>
     </v-app-bar>
     <div class="main-body">
       <FlaShMessage />
@@ -106,6 +86,13 @@ export default {
     ],
     login_user_name: localStorage.getItem("name"),
   }),
+
+  computed: {
+    // 現在のルートがサインインページかどうかを判断
+    isSignInPage() {
+      return this.$route.name === "sign_in" || this.$route.name === "sign_up";
+    },
+  },
 
   methods: {
     openDrawer() {

@@ -6,7 +6,7 @@ export default function useValidate() {
     const uid = localStorage.getItem("uid");
     const client = localStorage.getItem("client");
     const accessToken = localStorage.getItem("access-token");
-    let isAuthenticated = localStorage.getItem("authenticated");
+    const isAuthenticated = localStorage.getItem("authenticated");
 
     return axios
       .get("auth/validate_token", {

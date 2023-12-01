@@ -81,7 +81,7 @@ export default {
         })
         .then((res) => {
           setItem(res.headers, res.data.data.name);
-          this.$router.push("/top");
+          this.$router.push("/schedules");
         })
         .catch((error) => {
           this.error = "メールアドレスかパスワードが間違っています。";
