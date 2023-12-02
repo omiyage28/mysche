@@ -6,6 +6,9 @@ import SignInPage from "./src/view/user/SignInPage.vue";
 import SignUpPage from "./src/view/user/SignUpPage.vue";
 import PasswordResetPage from "./src/view/user/PasswordResetPage.vue";
 import useValidate from "./src/auth/validate";
+import TaskPage from "./src/view/task/TaskPage.vue";
+import MemoPage from "./src/view/memo/MemoPage.vue";
+import settingPage from "./src/view/system_setting/settingPage.vue";
 
 Vue.use(Router);
 
@@ -54,11 +57,13 @@ export default new Router({
       path: "/sign_up",
       name: "sign_up",
       component: SignUpPage,
+      beforeEnter: noRequireAuth,
     },
     {
       path: "/password_reset",
       name: "password_reset",
       component: PasswordResetPage,
+      beforeEnter: noRequireAuth,
     },
     {
       path: "/schedules",
@@ -70,6 +75,24 @@ export default new Router({
       path: "/",
       name: "top",
       component: Top,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: "/tasks",
+      name: "tasks",
+      component: TaskPage,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: "/memos",
+      name: "memos",
+      component: MemoPage,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: "/setting",
+      name: "setting",
+      component: settingPage,
       beforeEnter: requireAuth,
     },
   ],

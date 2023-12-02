@@ -75,14 +75,15 @@ export default {
   },
   data: () => ({
     drawer: false,
-    links: ["Home", "About Us", "Team", "Services", "Blog", "Contact Us"],
     nav_lists: [
       {
         name: "カレンダー",
-        icon: "mdi-calendar-check",
-        page: "calendar",
+        icon: "mdi-calendar-today",
+        page: "schedules",
       },
-      { name: "メモ", icon: "mdi-pencil-box" },
+      { name: "タスク", icon: "mdi-format-list-checks", page: "tasks" },
+      { name: "メモ", icon: "mdi-note-text", page: "memos" },
+      { name: "設定", icon: "mdi-cog", page: "setting" },
     ],
     login_user_name: localStorage.getItem("name"),
   }),

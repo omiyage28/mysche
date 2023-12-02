@@ -5,6 +5,7 @@
         <v-dialog v-model="dialog" max-width="800">
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="secondary black--text" v-bind="attrs" v-on="on">
+              <v-icon> mdi-plus </v-icon>
               予定を追加
             </v-btn>
           </template>
@@ -152,7 +153,9 @@
                   class="mt-4 black--text"
                   color="secondary"
                   @click="createSchedule()"
-                  >作成する</v-btn
+                >
+                  <v-icon class="mr-1"> mdi-content-save-outline </v-icon>
+                  作成する</v-btn
                 >
               </v-row>
             </v-card-actions>

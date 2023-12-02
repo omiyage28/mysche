@@ -1,200 +1,87 @@
 <template>
-  <v-row class="fill-height">
-    <v-col>
-      <v-sheet height="64">
-        <v-toolbar flat>
-          <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
-            今日
-          </v-btn>
-          <v-btn fab text small color="grey darken-2" @click="prev">
-            <v-icon small> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn fab text small color="grey darken-2" @click="next">
-            <v-icon small> mdi-chevron-right </v-icon>
-          </v-btn>
-          <v-toolbar-title v-if="$refs.calendar"
-            >{{ $refs.calendar.title }}
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-menu bottom right>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn outlined color="grey darken-2" v-bind="attrs" v-on="on">
-                <span>{{ typeToLabel[type] }}</span>
-                <v-icon right> mdi-menu-down </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="type = 'day'">
-                <v-list-item-title>日</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = 'week'">
-                <v-list-item-title>週</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = 'month'">
-                <v-list-item-title>月</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="type = '4day'">
-                <v-list-item-title>4日</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-toolbar>
-      </v-sheet>
-      <v-sheet height="600">
-        <v-calendar
-          ref="calendar"
-          v-model="focus"
-          :events="events"
-          :type="type"
-          @click:event="showEvent"
-          @click:more="viewDay"
-          @change="updateRange"
-          locale="ja-jp"
-        ></v-calendar>
-        <v-menu
-          v-model="selectedOpen"
-          :close-on-content-click="false"
-          :activator="selectedElement"
-          offset-x
+  <div>
+    <h2>カレンダー{{ currentDate }}</h2>
+    <v-btn @click="prevMonth">前の月</v-btn>
+    <v-btn @click="nextMonth">次の月</v-btn>
+    <div style="max-width: 900px; border-top: 1px solid gray">
+      <div
+        v-for="(week, index) in calendars"
+        :key="index"
+        style="display: flex; border-left: 1px solid gray"
+      >
+        <div
+          v-for="(day, index) in week"
+          :key="index"
+          style="
+            flex: 1;
+            min-height: 125px;
+            border-right: 1px solid gray;
+            border-bottom: 1px solid gray;
+          "
         >
-          <v-card color="grey lighten-4" min-width="350px" flat>
-            <v-toolbar :color="selectedEvent.color" dark>
-              <v-btn icon>
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
-              <v-btn icon>
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </v-toolbar>
-            <v-card-text>
-              <span v-html="selectedEvent.details"></span>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn text color="secondary" @click="selectedOpen = false">
-                Cancel
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-menu>
-      </v-sheet>
-    </v-col>
-  </v-row>
+          {{ day.date }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
-  data: () => ({
-    focus: "",
-    type: "month",
-    typeToLabel: {
-      month: "月",
-      week: "週",
-      day: "日",
-      "4day": "4日",
-    },
-    selectedEvent: {},
-    selectedElement: null,
-    selectedOpen: false,
-    events: [],
-    colors: [
-      "blue",
-      "indigo",
-      "deep-purple",
-      "cyan",
-      "green",
-      "orange",
-      "grey darken-1",
-    ],
-    names: [
-      "Meeting",
-      "Holiday",
-      "PTO",
-      "Travel",
-      "Event",
-      "Birthday",
-      "Conference",
-      "Party",
-    ],
-  }),
-  mounted() {
-    this.$refs.calendar.checkChange();
+  data() {
+    return {
+      currentDate: moment(),
+    };
   },
   methods: {
-    viewDay({ date }) {
-      this.focus = date;
-      this.type = "day";
+    getStartDate() {
+      let date = moment(this.currentDate);
+      date.startOf("month");
+      const youbiNum = date.day();
+      return date.subtract(youbiNum, "days");
     },
-    getEventColor(event) {
-      return event.color;
+    getEndDate() {
+      let date = moment(this.currentDate);
+      date.endOf("month");
+      const youbiNum = date.day();
+      return date.add(6 - youbiNum, "days");
     },
-    setToday() {
-      this.focus = "";
-    },
-    prev() {
-      this.$refs.calendar.prev();
-    },
-    next() {
-      this.$refs.calendar.next();
-    },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => (this.selectedOpen = true))
-        );
-      };
+    getCalendar() {
+      let startDate = this.getStartDate();
+      const endDate = this.getEndDate();
+      const weekNumber = Math.ceil(endDate.diff(startDate, "days") / 7);
 
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        requestAnimationFrame(() => requestAnimationFrame(() => open()));
-      } else {
-        open();
+      let calendars = [];
+      for (let week = 0; week < weekNumber; week++) {
+        let weekRow = [];
+        for (let day = 0; day < 7; day++) {
+          weekRow.push({
+            date: startDate.get("date"),
+          });
+          startDate.add(1, "days");
+        }
+        calendars.push(weekRow);
       }
-
-      nativeEvent.stopPropagation();
+      return calendars;
     },
-    updateRange({ start, end }) {
-      const events = [];
-
-      // const min = new Date(`${start.date}T00:00:00`);
-      // const max = new Date(`${end.date}T23:59:59`);
-      // const days = (max.getTime() - min.getTime()) / 86400000;
-      // const eventCount = this.rnd(days, days + 20);
-
-      // for (let i = 0; i < eventCount; i++) {
-      //   const allDay = this.rnd(0, 3) === 0;
-      //   const firstTimestamp = this.rnd(min.getTime(), max.getTime());
-      //   const first = new Date(firstTimestamp - (firstTimestamp % 900000));
-      //   const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000;
-      //   const second = new Date(first.getTime() + secondTimestamp);
-
-      //   events.push({
-      //     name: this.names[this.rnd(0, this.names.length - 1)],
-      //     start: first,
-      //     end: second,
-      //     color: this.colors[this.rnd(0, this.colors.length - 1)],
-      //     timed: !allDay,
-      //   });
-      // }
-
-      // this.events = events;
+    nextMonth() {
+      this.currentDate = moment(this.currentDate).add(1, "month");
     },
-    rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a;
+    prevMonth() {
+      this.currentDate = moment(this.currentDate).subtract(1, "month");
+    },
+  },
+  mounted() {
+    console.log(this.getCalendar());
+  },
+  computed: {
+    calendars() {
+      return this.getCalendar();
     },
   },
 };
 </script>
 
-<style scoped lang="scss">
-@import "../../../shared_style/color.scss";
-p {
-  color: $main-color;
-}
-</style>
+<style scoped lang="scss"></style>
