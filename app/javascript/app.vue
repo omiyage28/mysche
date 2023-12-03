@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <FlaShMessage />
     <v-navigation-drawer app v-model="drawer" clipped v-if="!isSignInPage">
       <v-container>
         <div class="pa-5">
@@ -50,8 +51,9 @@
       </v-toolbar-title>
     </v-app-bar>
     <div class="main-body">
-      <FlaShMessage />
-      <router-view></router-view>
+      <v-sheet elevation="0" class="mx-auto px-2 main-width">
+        <router-view></router-view>
+      </v-sheet>
     </div>
     <v-footer color="primary" app>
       <v-row justify="center" no-gutters>
@@ -130,8 +132,12 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .main-body {
   margin-top: 70px;
+}
+
+.main-width {
+  width: calc(100vw - 200px);
 }
 </style>
