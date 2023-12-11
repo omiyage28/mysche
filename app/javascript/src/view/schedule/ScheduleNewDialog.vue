@@ -146,6 +146,73 @@
                   />
                 </v-col>
               </v-row>
+              <v-row>
+                <v-col cols="12" class="radio-group-center">
+                  <v-radio-group v-model="schedule.color" row>
+                    <v-radio
+                      label="あお"
+                      :value="0"
+                      color="blue"
+                      class="radio-group-center"
+                    >
+                      <template v-slot:label>
+                        <div>
+                          <strong class="blue--text">あお</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="あか" :value="1" color="red">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="red--text">あか</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="きいろ" :value="2" color="yellow">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="yellow--text">きいろ</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="みどり" :value="3" color="green">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="green--text">みどり</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="ピンク" :value="4" color="pink">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="pink--text">ピンク</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="オレンジ" :value="5" color="orange">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="orange--text">オレンジ</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="むらさき" :value="6" color="purple">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="purple--text">むらさき</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                    <v-radio label="グレー" :value="7" color="grey">
+                      <template v-slot:label>
+                        <div>
+                          <strong class="grey--text">グレー</strong>
+                        </div>
+                      </template>
+                    </v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
             </v-form>
             <v-card-actions>
               <v-row no-gutters justify="center">
@@ -183,6 +250,8 @@ export default {
         start_time: "",
         end_date: "",
         end_time: "",
+        is_all_day: false,
+        color: 0,
       },
       menu1: false,
       menu2: false,
@@ -204,15 +273,9 @@ export default {
           end_date: this.schedule.end_date,
           end_time: this.schedule.end_time,
           is_all_day: this.schedule.is_all_day,
+          color: this.schedule.color,
         },
       };
-      // const headers = {
-      //   headers: {
-      //     "access-token": localStorage.getItem("access-token"),
-      //     client: localStorage.getItem("client"),
-      //     uid: localStorage.getItem("uid"),
-      //   },
-      // };
 
       axios
         .post(url, schedule, headers)
@@ -230,3 +293,10 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+.radio-group-center {
+  display: flex;
+  justify-content: center;
+}
+</style>

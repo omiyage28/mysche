@@ -19,6 +19,6 @@ class Api::V1::SchedulesController < ApplicationController
 
   private
   def schedule_params
-    params.require(:schedule).permit(:title, :description, :start_date, :end_date, :start_time, :end_time).merge(user_id: current_user.id)
+    params.require(:schedule).permit(:title, :description, :start_date, :end_date, :start_time, :end_time, :is_all_day, :color).merge(user_id: current_user.id)
   end
 end

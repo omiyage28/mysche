@@ -26,169 +26,67 @@
           :class="{ outside: currentMonth != day.month }"
           v-for="(day, index) in week"
           :key="index"
+          @drop="dragEnd($event, day.date)"
+          @dragover.prevent
         >
           <div class="calendar-day">
             {{ day.day }}
           </div>
           <div v-for="dayEvent in day.dayEvents" :key="dayEvent.id">
             <div
+              v-if="dayEvent.width"
               class="calendar-event"
-              :style="`background-color:${dayEvent.color}`"
+              :style="`width:${dayEvent.width}%;background-color:${dayEvent.color};font-weight:bold`"
+              draggable="true"
+              @dragstart="dragStart($event, dayEvent.id)"
+              @click="openShowDialog(dayEvent)"
             >
-              {{ dayEvent.name }}
+              {{ dayEvent.title }}
             </div>
+            <div v-else style="height: 26px"></div>
           </div>
         </div>
       </div>
     </div>
+    <ScheduleShowDialog
+      :dialog.sync="showDialog"
+      :selectedSchedule="selectedSchedule"
+    />
   </div>
 </template>
 
 <script>
+import setHeaders from "../../auth/setHeaders";
 import moment from "moment";
+import axios from "axios";
+import ScheduleShowDialog from "../schedule/ScheduleShowDialog.vue";
 
 export default {
+  components: {
+    ScheduleShowDialog,
+  },
   data() {
     return {
       currentDate: moment(),
-      events: [
-        {
-          id: 1,
-          name: "ミーティング",
-          start: "2023-12-01",
-          end: "2023-12-01",
-          color: "blue",
-        },
-        {
-          id: 2,
-          name: "イベント",
-          start: "2023-12-02",
-          end: "2023-12-03",
-          color: "limegreen",
-        },
-        {
-          id: 3,
-          name: "会議",
-          start: "2023-12-06",
-          end: "2023-12-06",
-          color: "deepskyblue",
-        },
-        {
-          id: 4,
-          name: "有給",
-          start: "2023-12-08",
-          end: "2023-12-08",
-          color: "dimgray",
-        },
-        {
-          id: 5,
-          name: "海外旅行",
-          start: "2023-12-08",
-          end: "2023-12-12",
-          color: "navy",
-        },
-        {
-          id: 6,
-          name: "誕生日",
-          start: "2023-12-16",
-          end: "2023-12-16",
-          color: "orange",
-        },
-        {
-          id: 7,
-          name: "イベント",
-          start: "2023-12-12",
-          end: "2023-12-15",
-          color: "limegreen",
-        },
-        {
-          id: 8,
-          name: "出張",
-          start: "2023-12-12",
-          end: "2023-12-13",
-          color: "teal",
-        },
-        {
-          id: 9,
-          name: "客先訪問",
-          start: "2023-12-14",
-          end: "2023-12-14",
-          color: "red",
-        },
-        {
-          id: 10,
-          name: "パーティ",
-          start: "2023-12-15",
-          end: "2023-12-15",
-          color: "royalblue",
-        },
-        {
-          id: 12,
-          name: "ミーティング",
-          start: "2023-12-18",
-          end: "2023-12-19",
-          color: "blue",
-        },
-        {
-          id: 13,
-          name: "イベント",
-          start: "2023-12-21",
-          end: "2023-12-21",
-          color: "limegreen",
-        },
-        {
-          id: 14,
-          name: "有給",
-          start: "2023-12-20",
-          end: "2023-12-20",
-          color: "dimgray",
-        },
-        {
-          id: 15,
-          name: "イベント",
-          start: "2023-12-25",
-          end: "2023-12-28",
-          color: "limegreen",
-        },
-        {
-          id: 16,
-          name: "会議",
-          start: "2023-12-21",
-          end: "2023-12-21",
-          color: "deepskyblue",
-        },
-        {
-          id: 17,
-          name: "旅行",
-          start: "2023-12-23",
-          end: "2023-12-24",
-          color: "navy",
-        },
-        {
-          id: 18,
-          name: "ミーティング",
-          start: "2023-11-28",
-          end: "2023-11-28",
-          color: "blue",
-        },
-        {
-          id: 19,
-          name: "会議",
-          start: "2023-11-12",
-          end: "2023-11-12",
-          color: "deepskyblue",
-        },
-        {
-          id: 20,
-          name: "誕生日",
-          start: "2023-11-30",
-          end: "2023-11-30",
-          color: "orange",
-        },
-      ],
+      events: [],
+      showDialog: false,
+      selectedSchedule: {},
     };
   },
   methods: {
+    fetchEvents() {
+      const url = "/api/v1/schedules";
+      const headers = setHeaders();
+      axios
+        .get(url, headers)
+        .then((res) => {
+          console.log(res.data.schedules);
+          this.events = res.data.schedules;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     getStartDate() {
       let date = moment(this.currentDate);
       date.startOf("month");
@@ -212,10 +110,11 @@ export default {
       for (let week = 0; week < weekNumber; week++) {
         let weekRow = [];
         for (let day = 0; day < 7; day++) {
-          let dayEvents = this.getDayEvents(calendarDate);
+          let dayEvents = this.getDayEvents(calendarDate, day);
           weekRow.push({
             day: calendarDate.get("date"),
             month: calendarDate.format("YYYY-MM"),
+            date: calendarDate.format("YYYY-MM-DD"),
             dayEvents,
           });
           calendarDate.add(1, "days");
@@ -234,17 +133,111 @@ export default {
       const week = ["日", "月", "火", "水", "木", "金", "土"];
       return week[dayIndex];
     },
-    getDayEvents(date) {
-      return this.events.filter((event) => {
-        let startDate = moment(event.start).format("YYYY-MM-DD");
-        let endDate = moment(event.end).format("YYYY-MM-DD");
+    getDayEvents(date, day) {
+      let stackIndex = 0;
+      let dayEvents = [];
+      let startedEvents = [];
+      this.sortedEvents.forEach((event) => {
+        let startDate = moment(event.start_date).format("YYYY-MM-DD");
+        let endDate = moment(event.end_date).format("YYYY-MM-DD");
         let Date = date.format("YYYY-MM-DD");
-        if (startDate <= Date && endDate >= Date) return true;
+        if (startDate <= Date && endDate >= Date) {
+          if (startDate === Date) {
+            [stackIndex, dayEvents] = this.getStackEvents(
+              event,
+              day,
+              date,
+              stackIndex,
+              dayEvents,
+              startedEvents,
+              event.start_date
+            );
+          } else if (day === 0) {
+            [stackIndex, dayEvents] = this.getStackEvents(
+              event,
+              day,
+              date,
+              stackIndex,
+              dayEvents,
+              startedEvents,
+              Date
+            );
+          } else {
+            startedEvents.push(event);
+          }
+        }
       });
+      return dayEvents;
+    },
+    getEventWidth(end, start, day) {
+      console.log(day);
+      let betweenDays = moment(start).diff(moment(end), "days");
+      if (betweenDays > 6 - day) {
+        return (6 - day) * 100 + 95;
+      } else {
+        return betweenDays * 100 + 95;
+      }
+    },
+    getStackEvents(
+      event,
+      day,
+      date,
+      stackIndex,
+      dayEvents,
+      startedEvents,
+      start
+    ) {
+      [stackIndex, dayEvents] = this.getStartedEvents(
+        stackIndex,
+        startedEvents,
+        dayEvents
+      );
+      let width = this.getEventWidth(start, event.end_date, day);
+      Object.assign(event, {
+        stackIndex,
+      });
+      console.log(dayEvents);
+      dayEvents.push({ ...event, width });
+      stackIndex++;
+      return [stackIndex, dayEvents];
+    },
+    getStartedEvents(stackIndex, startedEvents, dayEvents) {
+      let startedEvent;
+      do {
+        startedEvent = startedEvents.find(
+          (event) => event.stackIndex === stackIndex
+        );
+        if (startedEvent) {
+          dayEvents.push(startedEvent);
+          stackIndex++;
+        }
+      } while (typeof startedEvent !== "undefined");
+      return [stackIndex, dayEvents];
+    },
+    dragStart(event, eventId) {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.dropEffect = "move";
+      event.dataTransfer.setData("eventId", eventId);
+    },
+    dragEnd(event, date) {
+      let eventId = event.dataTransfer.getData("eventId");
+      let dragEvent = this.events.find((event) => event.id == eventId);
+      let betweenDays = moment(dragEvent.end_date).diff(
+        moment(dragEvent.start_date),
+        "days"
+      );
+      dragEvent.start_date = date;
+      dragEvent.end_date = moment(dragEvent.start_date)
+        .add(betweenDays, "days")
+        .format("YYYY-MM-DD");
+    },
+    openShowDialog(schedule) {
+      this.showDialog = true;
+      this.selectedSchedule = schedule;
     },
   },
   mounted() {
-    console.log(this.getCalendar());
+    this.fetchEvents();
   },
   computed: {
     calendars() {
@@ -255,6 +248,15 @@ export default {
     },
     currentMonth() {
       return this.currentDate.format("YYYY-MM");
+    },
+    sortedEvents() {
+      return this.events.slice().sort(function (a, b) {
+        let startDate = moment(a.start_date).format("YYYY-MM-DD");
+        let startDate_2 = moment(b.start_date).format("YYYY-MM-DD");
+        if (startDate < startDate_2) return -1;
+        if (startDate > startDate_2) return 1;
+        return 0;
+      });
     },
   },
 };
@@ -302,5 +304,9 @@ export default {
   margin-bottom: 1px;
   height: 25px;
   line-height: 25px;
+  position: relative;
+  z-index: 1;
+  border-radius: 4px;
+  padding-left: 4px;
 }
 </style>

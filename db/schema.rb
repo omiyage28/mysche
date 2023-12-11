@@ -19,10 +19,12 @@ ActiveRecord::Schema.define(version: 2023_11_19_095121) do
     t.date "end_date"
     t.time "start_time"
     t.time "end_time"
+    t.integer "color", default: 0, null: false
     t.boolean "is_all_day", default: false, null: false
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_schedules_on_user_id"
   end
 
   create_table "tops", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -51,4 +53,5 @@ ActiveRecord::Schema.define(version: 2023_11_19_095121) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "schedules", "users"
 end

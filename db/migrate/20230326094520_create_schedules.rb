@@ -7,6 +7,7 @@ class CreateSchedules < ActiveRecord::Migration[6.1]
       t.date :end_date
       t.time :start_time
       t.time :end_time
+      t.integer :color, null: false, default: 0
       t.boolean :is_all_day, null: false, default: false
       t.references :user, null: false, foreign_key: true
 
