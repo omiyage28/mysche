@@ -51,17 +51,17 @@
       </v-toolbar-title>
     </v-app-bar>
     <div class="main-body">
-      <v-sheet elevation="0" class="mx-auto px-2 main-width">
+      <v-sheet elevation="0" class="mx-auto px-2">
         <router-view></router-view>
       </v-sheet>
     </div>
-    <v-footer color="primary" app>
+    <!-- <v-footer color="primary" app>
       <v-row justify="center" no-gutters>
         <v-col class="py-4 text-center" cols="12" style="font-size: 12px">
           {{ new Date().getFullYear() }}　©マイスケ
         </v-col>
       </v-row>
-    </v-footer>
+    </v-footer> -->
   </v-app>
 </template>
 

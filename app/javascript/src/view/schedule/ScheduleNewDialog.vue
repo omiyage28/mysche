@@ -10,7 +10,7 @@
             </v-btn>
           </template>
 
-          <v-card>
+          <v-card max-width="800px">
             <v-toolbar color="primary" dense flat>
               <v-toolbar-title class="font-medium">予定の作成</v-toolbar-title>
               <v-spacer></v-spacer>
@@ -146,7 +146,7 @@
                   />
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row no-gutters>
                 <v-col cols="12" class="radio-group-center">
                   <v-radio-group v-model="schedule.color" row>
                     <v-radio
@@ -237,19 +237,22 @@
 import axios from "axios";
 import setHeaders from "../../auth/setHeaders";
 import rules from "../../helpers/rules";
+import moment from "moment";
 
 export default {
   data() {
+    const now = moment();
+    const oneHourLater = moment().add(1, "hours");
     return {
       dialog: false,
       valid: false,
       schedule: {
         title: "",
         description: "",
-        start_date: "",
-        start_time: "",
-        end_date: "",
-        end_time: "",
+        start_date: now.format("YYYY-MM-DD"),
+        start_time: now.format("HH:00"),
+        end_date: oneHourLater.format("YYYY-MM-DD"),
+        end_time: oneHourLater.format("HH:00"),
         is_all_day: false,
         color: 0,
       },

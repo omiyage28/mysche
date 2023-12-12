@@ -5,6 +5,7 @@
         <v-dialog v-model="showDialog" max-width="400">
           <v-card shaped>
             <v-toolbar color="primary" dense flat>
+              <v-icon :color="selectedSchedule.color">mdi-circle</v-icon>
               <v-spacer></v-spacer>
               <v-btn icon @click="showDialog = false">
                 <v-icon>mdi-close</v-icon>

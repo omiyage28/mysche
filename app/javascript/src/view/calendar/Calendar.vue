@@ -1,15 +1,21 @@
 <template>
   <div class="content">
-    <h2>カレンダー {{ displayDate }}</h2>
-    <v-btn small @click="prevMonth" class="mr-1 my-2">
-      <v-icon> mdi-chevron-left </v-icon>
-      前の月</v-btn
-    >
-    <v-btn small @click="nextMonth" class="ml-1 my-2"
-      >次の月
+    <div class="flex justify-between">
+      <div class="flex items-center">
+        <h2 class="font-weight-bold text-xl">{{ displayDate }}</h2>
+      </div>
+      <div>
+        <v-btn small @click="prevMonth" class="mr-1 my-2">
+          <v-icon> mdi-chevron-left </v-icon>
+          前の月</v-btn
+        >
+        <v-btn small @click="nextMonth" class="ml-1 my-2"
+          >次の月
 
-      <v-icon> mdi-chevron-right </v-icon>
-    </v-btn>
+          <v-icon> mdi-chevron-right </v-icon>
+        </v-btn>
+      </div>
+    </div>
     <div class="calendar">
       <div class="calendar-weekly">
         <div class="calendar-youbi" v-for="n in 7" :key="n">
@@ -263,12 +269,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.content {
-  margin: 2em auto;
-  width: 900px;
-}
 .calendar {
-  max-width: 900px;
   border-top: 1px solid #e0e0e0;
   font-size: 0.8em;
 }
@@ -279,7 +280,7 @@ export default {
 }
 .calendar-daily {
   flex: 1;
-  min-height: 125px;
+  min-height: 100px;
   border-right: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
   margin-right: -1px;
@@ -302,8 +303,8 @@ export default {
 .calendar-event {
   color: white;
   margin-bottom: 1px;
-  height: 25px;
-  line-height: 25px;
+  height: 20px;
+  line-height: 20px;
   position: relative;
   z-index: 1;
   border-radius: 4px;
