@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     get "/sign_in", to: "top#index"
     get "/sign_up", to: "top#index"
     get "/password_reset", to: "top#index"
+    get "/password_update", to: "top#index"
     get "/tasks", to: "top#index"
     get "/memos", to: "top#index"
     get "/setting", to: "top#index"

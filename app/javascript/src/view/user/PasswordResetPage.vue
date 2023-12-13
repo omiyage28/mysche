@@ -8,7 +8,7 @@
             <br />
             下のフォームに登録したメールアドレスを入力してください。
             <br />
-            再設定フォームへのリンクを送信いたします。
+            入力されたメールアドレスに再設定フォームへのリンクを送信します。
           </p>
           <v-form ref="form" v-model="valid">
             <v-text-field
@@ -49,6 +49,7 @@
 
 <script>
 import CommonFlame from "../shared/CommonFlame.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -59,8 +60,31 @@ export default {
       valid: false,
       email: null,
       errors: [],
-      reset_password_token: null,
+      email: null,
     };
+  },
+
+  methods: {
+    sendMail() {
+      const url = "/auth/password";
+      const params = {
+        email: this.email,
+        redirect_url: "http://localhost:3000/password_update",
+      };
+      console;
+      axios
+        .post(url, params)
+        .then((res) => {
+          this.$store.dispatch("setFlash", {
+            text: "入力されたメールアドレスに再設定用のメールを送信しました。",
+            type: "notice",
+          });
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.errors = error.response.data.errors;
+        });
+    },
   },
 };
 </script>

@@ -5,6 +5,7 @@ import Calendar from "./src/view/calendar/Calendar.vue";
 import SignInPage from "./src/view/user/SignInPage.vue";
 import SignUpPage from "./src/view/user/SignUpPage.vue";
 import PasswordResetPage from "./src/view/user/PasswordResetPage.vue";
+import PasswordUpdatePage from "./src/view/user/PasswordUpdatePage.vue";
 import useValidate from "./src/auth/validate";
 import TaskPage from "./src/view/task/TaskPage.vue";
 import MemoPage from "./src/view/memo/MemoPage.vue";
@@ -63,6 +64,12 @@ export default new Router({
       path: "/password_reset",
       name: "password_reset",
       component: PasswordResetPage,
+      beforeEnter: noRequireAuth,
+    },
+    {
+      path: "/password_update",
+      name: "password_update",
+      component: PasswordUpdatePage,
       beforeEnter: noRequireAuth,
     },
     {
