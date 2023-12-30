@@ -11,7 +11,6 @@
         >
         <v-btn small @click="nextMonth" class="ml-1 my-2"
           >次の月
-
           <v-icon> mdi-chevron-right </v-icon>
         </v-btn>
       </div>
@@ -66,6 +65,7 @@ import setHeaders from "../../auth/setHeaders";
 import moment from "moment";
 import axios from "axios";
 import ScheduleShowDialog from "../schedule/ScheduleShowDialog.vue";
+// import store from "../../../packs/store";
 
 export default {
   components: {
@@ -236,6 +236,20 @@ export default {
       dragEvent.end_date = moment(dragEvent.start_date)
         .add(betweenDays, "days")
         .format("YYYY-MM-DD");
+
+      const url = `/api/v1/schedules/${eventId}`;
+      const headers = setHeaders();
+      const params = {
+        start_date: dragEvent.start_date,
+        end_date: dragEvent.end_date,
+      };
+
+      axios
+        .put(url, params, headers)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error);
+        });
     },
     openShowDialog(schedule) {
       this.showDialog = true;
@@ -244,6 +258,14 @@ export default {
   },
   mounted() {
     this.fetchEvents();
+  },
+  watch: {
+    scheduleCreated(newVal) {
+      if (newVal) {
+        this.fetchEvents();
+        this.$store.dispatch("resetScheduleCreated");
+      }
+    },
   },
   computed: {
     calendars() {
@@ -263,6 +285,9 @@ export default {
         if (startDate > startDate_2) return 1;
         return 0;
       });
+    },
+    scheduleCreated() {
+      return this.$store.state.scheduleCreated;
     },
   },
 };

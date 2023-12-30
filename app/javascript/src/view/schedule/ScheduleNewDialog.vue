@@ -29,6 +29,7 @@
                     color="black"
                     required
                     v-model="schedule.title"
+                    :rules="[rules.required]"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
@@ -219,7 +220,8 @@
                 <v-btn
                   class="mt-4 black--text"
                   color="secondary"
-                  @click="createSchedule()"
+                  @click="submitSchedule()"
+                  :disabled="!valid"
                 >
                   <v-icon class="mr-1"> mdi-content-save-outline </v-icon>
                   作成する</v-btn
@@ -238,6 +240,7 @@ import axios from "axios";
 import setHeaders from "../../auth/setHeaders";
 import rules from "../../helpers/rules";
 import moment from "moment";
+import { mapActions } from "vuex";
 
 export default {
   data() {
@@ -263,7 +266,7 @@ export default {
   },
 
   methods: {
-    createSchedule() {
+    submitSchedule() {
       const url = "/api/v1/schedules";
       const headers = setHeaders();
 
@@ -288,6 +291,8 @@ export default {
             type: "notice",
             text: "予定を作成しました。",
           });
+          this.$store.dispatch("createSchedule");
+          this.$router.push({ name: "schedules" });
         })
         .catch((error) => {
           console.log(error);

@@ -7,8 +7,8 @@
           class="mt-4"
           label="パスワード(必須)"
           type="password"
+          autocomplete="new-password"
           hint="英大文字・小文字・数字を含む8文字以上で入力して下さい"
-          counter
           outlined
           dense
           color="black"
@@ -16,11 +16,11 @@
           :rules="[rules.required, rules.passwordMin]"
         ></v-text-field>
         <v-text-field
+          autocomplete="new-password"
           class="mt-4"
           label="パスワード(必須)"
           type="password"
           hint="英大文字・小文字・数字を含む8文字以上で入力して下さい"
-          counter
           outlined
           dense
           color="black"
@@ -63,6 +63,7 @@ export default {
       rules,
     };
   },
+
   methods: {
     updatePassword() {
       this.error = null;
@@ -71,12 +72,24 @@ export default {
         this.error = "パスワードが一致しません。";
         return;
       }
+      const headers = {
+        "access-token": this.$route.query["access-token"],
+        client: this.$route.query["client"],
+        uid: this.$route.query["uid"],
+      };
+      console.log(headers);
 
       axios
-        .post("/auth", {
-          password: this.user.password,
-          password_confirmation: this.user.password_confirmation,
-        })
+        .put(
+          "/auth/password",
+          {
+            password: this.user.password,
+            password_confirmation: this.user.password_confirmation,
+          },
+          {
+            headers: headers,
+          }
+        )
         .then((res) => {
           this.$store.dispatch("setFlash", {
             text: "パスワードを再設定しました。",
@@ -86,7 +99,7 @@ export default {
         })
         .catch((error) => {
           if (error) {
-            this.error = "パスワードが一致しません。";
+            this.error = "問題があります。";
           }
         });
     },

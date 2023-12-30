@@ -4,13 +4,22 @@ class Api::V1::SchedulesController < ApplicationController
 
   def index
     user = current_user
-    schedules = Schedule.all
+    schedules = Schedule.where(user_id: user.id)
     render json: {schedules: schedules}
   end
 
   def create
     schedule = Schedule.new(schedule_params)
     if schedule.save
+      render json: {schedule: schedule}, status: 200
+    else
+      render json: {errors: schedule.errors.full_messages}, status: 400
+    end
+  end
+
+  def update
+    schedule = Schedule.find(params[:id])
+    if schedule.update(schedule_params)
       render json: {schedule: schedule}, status: 200
     else
       render json: {errors: schedule.errors.full_messages}, status: 400

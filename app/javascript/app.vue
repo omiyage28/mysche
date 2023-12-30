@@ -91,7 +91,6 @@ export default {
   }),
 
   computed: {
-    // 現在のルートがサインインページかどうかを判断
     isSignInPage() {
       return this.$route.name === "sign_in" || this.$route.name === "sign_up";
     },

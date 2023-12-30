@@ -8,6 +8,6 @@ export default {
   },
   formatTime(time) {
     if (!time) return "";
-    return moment(time).format("HH:mm");
+    return moment.utc(time).format("HH:mm");
   },
 };
