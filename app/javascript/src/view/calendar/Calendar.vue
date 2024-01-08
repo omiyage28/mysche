@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content" ref="calendar">
     <div class="flex justify-between">
       <div class="flex items-center">
         <h2 class="font-weight-bold text-xl">{{ displayDate }}</h2>
@@ -31,8 +31,11 @@
           :class="{ outside: currentMonth != day.month }"
           v-for="(day, index) in week"
           :key="index"
+          @dblclick="openCreateDialog(day.date)"
           @drop="dragEnd($event, day.date)"
           @dragover.prevent
+          @mousedown="startCellDrag($event, day.date, index)"
+          @mouseenter="cellDrag($event, day.date, index)"
         >
           <div class="calendar-day">
             {{ day.day }}
@@ -42,10 +45,20 @@
               v-if="dayEvent.width"
               class="calendar-event"
               :style="`width:${dayEvent.width}%;background-color:${dayEvent.color};font-weight:bold`"
-              draggable="true"
+              :draggable="!rightResizing && !leftResizing ? true : false"
               @dragstart="dragStart($event, dayEvent.id)"
               @click="openShowDialog(dayEvent)"
             >
+              <div
+                class="change-start-date"
+                style="top: 6px; left: -6px; cursor: col-resize"
+                @mousedown="mouseDownResize(dayEvent, 'left')"
+              ></div>
+              <div
+                class="change-end-date"
+                style="top: 6px; right: -6px; cursor: col-resize"
+                @mousedown="mouseDownResize(dayEvent, 'right')"
+              ></div>
               {{ dayEvent.title }}
             </div>
             <div v-else style="height: 26px"></div>
@@ -57,6 +70,11 @@
       :dialog.sync="showDialog"
       :selectedSchedule="selectedSchedule"
     />
+    <ScheduleCreateDialog
+      :createBtnFlag="false"
+      :dialog.sync="openCreateDialogFlag"
+      :date="createDate"
+    />
   </div>
 </template>
 
@@ -64,12 +82,13 @@
 import setHeaders from "../../auth/setHeaders";
 import moment from "moment";
 import axios from "axios";
+import ScheduleCreateDialog from "../schedule/ScheduleCreateDialog.vue";
 import ScheduleShowDialog from "../schedule/ScheduleShowDialog.vue";
-// import store from "../../../packs/store";
 
 export default {
   components: {
     ScheduleShowDialog,
+    ScheduleCreateDialog,
   },
   data() {
     return {
@@ -77,6 +96,22 @@ export default {
       events: [],
       showDialog: false,
       selectedSchedule: {},
+      width: "",
+      pageX: "",
+      element: "",
+      leftResizing: false,
+      rightResizing: false,
+      openCreateDialogFlag: false,
+      createDate: "",
+      hasResized: false,
+      cellIndex: "",
+      cellDate: "",
+      cellRef: "",
+      enteredDates: [],
+      isMouseDown: false,
+      displayTimeLeft: "",
+      rightDateLabel: "",
+      startDragPosition: "",
     };
   },
   methods: {
@@ -86,7 +121,6 @@ export default {
       axios
         .get(url, headers)
         .then((res) => {
-          console.log(res.data.schedules);
           this.events = res.data.schedules;
         })
         .catch((error) => {
@@ -176,7 +210,6 @@ export default {
       return dayEvents;
     },
     getEventWidth(end, start, day) {
-      console.log(day);
       let betweenDays = moment(start).diff(moment(end), "days");
       if (betweenDays > 6 - day) {
         return (6 - day) * 100 + 95;
@@ -202,7 +235,6 @@ export default {
       Object.assign(event, {
         stackIndex,
       });
-      console.log(dayEvents);
       dayEvents.push({ ...event, width });
       stackIndex++;
       return [stackIndex, dayEvents];
@@ -252,18 +284,197 @@ export default {
         });
     },
     openShowDialog(schedule) {
+      if (this.hasResized) {
+        return;
+      }
       this.showDialog = true;
       this.selectedSchedule = schedule;
+    },
+
+    openCreateDialog(date) {
+      this.openCreateDialogFlag = true;
+      this.createDate = date;
+    },
+    mouseDownResize(schedule, direction) {
+      if (direction === "left") {
+        this.leftResizing = true;
+      } else {
+        this.rightResizing = true;
+      }
+      let parentElement = event.target.closest(".calendar-event");
+      if (parentElement) {
+        this.element = parentElement;
+        let childElement = parentElement.children[0];
+        this.left = childElement.style.left;
+        this.width = parentElement.style.width;
+      }
+      this.pageX = event.pageX;
+      this.schedule_id = schedule.id;
+    },
+    mouseResize(event) {
+      if (this.leftResizing || this.rightResizing) {
+        let diff = event.pageX - this.pageX;
+        let parentWidth = this.element.parentElement.offsetWidth;
+
+        if (this.leftResizing) {
+          // 左側のリサイズの場合
+          let diffPercent = (diff * 100) / parentWidth;
+          let newWidth = parseInt(this.width.replace("%", "")) - diffPercent;
+          let newLeft = parseInt(this.left.replace("%", "")) + diffPercent;
+
+          // 新しい幅が最小値(94%)を下回らないように調整
+          console.log(newWidth);
+          if (newWidth < 85) {
+            newLeft -= 85 - newWidth;
+            newWidth = 85;
+          }
+
+          this.element.style.left = `${newLeft}%`;
+          this.element.style.width = `${newWidth + 6}%`;
+        } else if (this.rightResizing) {
+          // 右側のリサイズの場合
+          let newWidth =
+            parseInt(this.width.replace("%", "")) + (diff * 100) / parentWidth;
+          newWidth = Math.max(newWidth, 94);
+          this.element.style.width = `${newWidth}%`;
+        }
+      }
+    },
+
+    stopDrag(event) {
+      event.stopPropagation();
+      if (!this.leftResizing && !this.rightResizing) {
+        return;
+      }
+      let diff = event.pageX - this.pageX;
+      let schedule = this.events.find((event) => event.id == this.schedule_id);
+      if (!schedule) {
+        return;
+      }
+
+      let newWidthPercent = parseFloat(
+        this.element.style.width.replace("%", "") -
+          this.width.replace("%", "") +
+          100
+      );
+
+      if (this.rightResizing) {
+        let daysDiff = Math.floor(newWidthPercent / 100);
+        if (daysDiff > 0) {
+          let newEndDate = moment(schedule.end_date).add(daysDiff, "days");
+          schedule.end_date = newEndDate.format("YYYY-MM-DD");
+        } else if (daysDiff < 0) {
+          let newDaysDiff = Math.abs(daysDiff);
+          let newEndDate = moment(schedule.end_date).subtract(
+            newDaysDiff,
+            "days"
+          );
+          schedule.end_date = newEndDate.format("YYYY-MM-DD");
+        } else {
+          this.element.style.width = this.width;
+        }
+      } else if (this.leftResizing) {
+        // 左側をリサイズした場合のみ start_date を更新する
+        let daysDiff = Math.floor(newWidthPercent / 100);
+        if (daysDiff > 0) {
+          let newStartDate = moment(schedule.start_date).subtract(
+            daysDiff,
+            "days"
+          );
+          schedule.start_date = newStartDate.format("YYYY-MM-DD");
+        } else if (daysDiff < 0) {
+          let newDaysDiff = Math.abs(daysDiff);
+          let newStartDate = moment(schedule.start_date).add(
+            newDaysDiff,
+            "days"
+          );
+          schedule.start_date = newStartDate.format("YYYY-MM-DD");
+        } else {
+          this.element.style.left = 0;
+          this.element.style.width = this.width;
+        }
+      }
+
+      this.leftResizing = false;
+      this.rightResizing = false;
+
+      this.hasResized = true;
+      setTimeout(() => {
+        this.hasResized = false; // 一定時間後にフラグをリセット
+      }, 100); // 100ms後にリセット
+
+      const url = `/api/v1/schedules/${schedule.id}`;
+      const headers = setHeaders();
+      const params = {
+        start_date: schedule.start_date,
+        end_date: schedule.end_date,
+      };
+
+      axios
+        .put(url, params, headers)
+        .then((res) => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    startCellDrag(event, date, index) {
+      this.isMouseDown = true;
+      this.cellIndex = index;
+      this.enteredDates = [date];
+    },
+
+    cellDrag(event, date, index) {
+      if (this.isMouseDown) {
+        this.enteredDates.push(date);
+        console.log(this.enteredDates);
+      }
+    },
+
+    stopCellDrag(event) {
+      const url = "/api/v1/schedules";
+      const headers = setHeaders();
+
+      if (this.isMouseDown) {
+        // ドラッグ操作が終了したときにイベントを作成
+        let startDate = this.enteredDates[0];
+        let endDate = this.enteredDates[this.enteredDates.length - 1];
+        this.events.push({
+          title: "新規イベント",
+          start_date: startDate,
+          end_date: endDate,
+          color: "blue",
+        });
+        axios
+          .post(
+            url,
+            {
+              title: "新規イベント",
+              start_date: startDate,
+              end_date: endDate,
+            },
+            headers
+          )
+          .then((res) => {})
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+      this.isMouseDown = false;
+      this.enteredDates = [];
     },
   },
   mounted() {
     this.fetchEvents();
+    window.addEventListener("mousemove", this.mouseResize);
+    window.addEventListener("mouseup", this.stopDrag);
+    window.addEventListener("mouseup", this.stopCellDrag);
   },
   watch: {
-    scheduleCreated(newVal) {
+    scheduleChanged(newVal) {
       if (newVal) {
         this.fetchEvents();
-        this.$store.dispatch("resetScheduleCreated");
+        this.$store.dispatch("resetScheduleChanged");
       }
     },
   },
@@ -286,8 +497,8 @@ export default {
         return 0;
       });
     },
-    scheduleCreated() {
-      return this.$store.state.scheduleCreated;
+    scheduleChanged() {
+      return this.$store.state.scheduleChanged;
     },
   },
 };
@@ -334,5 +545,20 @@ export default {
   z-index: 1;
   border-radius: 4px;
   padding-left: 4px;
+}
+
+.change-start-date {
+  position: absolute;
+  width: 12px;
+  height: 14px;
+  cursor: col-resize;
+  z-index: 2;
+}
+.change-end-date {
+  position: absolute;
+  width: 12px;
+  height: 14px;
+  cursor: col-resize;
+  z-index: 2;
 }
 </style>

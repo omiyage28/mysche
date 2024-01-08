@@ -2,19 +2,12 @@
   <div>
     <template>
       <div class="text-center">
-        <v-dialog v-model="dialog" max-width="800">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="secondary black--text" v-bind="attrs" v-on="on">
-              <v-icon> mdi-plus </v-icon>
-              予定を追加
-            </v-btn>
-          </template>
-
+        <v-dialog v-model="showDialog" max-width="800">
           <v-card max-width="800px">
             <v-toolbar color="primary" dense flat>
               <v-toolbar-title class="font-medium">予定の作成</v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-btn icon @click="dialog = false">
+              <v-btn icon @click="showDialog = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
             </v-toolbar>
@@ -243,11 +236,22 @@ import moment from "moment";
 import { mapActions } from "vuex";
 
 export default {
+  props: {
+    dialog: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    date: {
+      type: String,
+      required: false,
+      default: "",
+    },
+  },
   data() {
     const now = moment();
     const oneHourLater = moment().add(1, "hours");
     return {
-      dialog: false,
       valid: false,
       schedule: {
         title: "",
@@ -292,11 +296,29 @@ export default {
             text: "予定を作成しました。",
           });
           this.$store.dispatch("changeSchedule");
-          this.$router.push({ name: "schedules" });
+          this.showDialog = false;
         })
         .catch((error) => {
           console.log(error);
         });
+    },
+  },
+  computed: {
+    showDialog: {
+      get() {
+        return this.dialog;
+      },
+      set(val) {
+        this.$emit("update:dialog", val);
+      },
+    },
+  },
+  watch: {
+    dialog(val) {
+      if (val) {
+        this.schedule.start_date = this.date;
+        this.schedule.end_date = this.date;
+      }
     },
   },
 };

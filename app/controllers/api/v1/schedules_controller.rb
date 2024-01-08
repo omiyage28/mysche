@@ -26,6 +26,15 @@ class Api::V1::SchedulesController < ApplicationController
     end
   end
 
+  def destroy
+    schedule = Schedule.find(params[:id])
+    if schedule.destroy
+      render json: {schedule: schedule}, status: 200
+    else
+      render json: {errors: schedule.errors.full_messages}, status: 400
+    end
+  end
+
   private
   def schedule_params
     params.require(:schedule).permit(:title, :description, :start_date, :end_date, :start_time, :end_time, :is_all_day, :color).merge(user_id: current_user.id)

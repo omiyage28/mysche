@@ -6,7 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    scheduleCreated: false,
+    scheduleChanged: false,
     flash: { show: false, text: null, type: null },
     schedules: [],
   },
@@ -14,8 +14,8 @@ export default new Vuex.Store({
     flash: (state) => state.flash,
   },
   mutations: {
-    set_schedule_created(state, value) {
-      state.scheduleCreated = value;
+    set_schedule_changed(state, value) {
+      state.scheduleChanged = value;
     },
     setFlash(state, { text, type, show = true }) {
       state.flash = { show: show, text: text, type: type };
@@ -32,11 +32,11 @@ export default new Vuex.Store({
       commit("setFlash", { text: null, type: null, show: false });
     },
 
-    createSchedule({ commit }) {
-      commit("set_schedule_created", true);
+    changeSchedule({ commit }) {
+      commit("set_schedule_changed", true);
     },
-    resetScheduleCreated({ commit }) {
-      commit("set_schedule_created", false);
+    resetScheduleChanged({ commit }) {
+      commit("set_schedule_changed", false);
     },
   },
 });

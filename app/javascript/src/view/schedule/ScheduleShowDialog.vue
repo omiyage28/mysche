@@ -12,7 +12,7 @@
               </v-btn>
             </v-toolbar>
             <v-row justify="end">
-              <v-btn icon class="mt-4 mr-4">
+              <v-btn icon class="mt-4 mr-4" @click="openConfirmationDialog">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-row>
@@ -289,6 +289,11 @@
         </v-dialog>
       </div>
     </template>
+    <ConfirmationDialog
+      :dialog.sync="confirmationDialogFlag"
+      :confirm_options="confirm_options"
+      @accept="deleteSchedule"
+    />
   </div>
 </template>
 
@@ -297,8 +302,12 @@ import axios from "axios";
 import setHeaders from "../../auth/setHeaders";
 import date from "../../helpers/date";
 import moment from "moment";
+import ConfirmationDialog from "../shared/ConfirmationDialog.vue";
 
 export default {
+  components: {
+    ConfirmationDialog,
+  },
   props: {
     dialog: {
       type: Boolean,
@@ -322,6 +331,8 @@ export default {
       displayEndDate: false,
       textareaFlag: false,
       editDescriptionFlag: false,
+      confirmationDialogFlag: false,
+      confirm_options: {},
     };
   },
 
@@ -360,9 +371,7 @@ export default {
             },
             headers
           )
-          .then((res) => {
-            console.log(res.data);
-          })
+          .then((res) => {})
           .catch((error) => {
             console.log(error);
           });
@@ -387,7 +396,7 @@ export default {
             headers
           )
           .then((res) => {
-            console.log(res.data);
+            this.$store.dispatch("changeSchedule");
           })
           .catch((error) => {
             console.log(error);
@@ -458,7 +467,7 @@ export default {
             headers
           )
           .then((res) => {
-            // 成功時の処理
+            this.$store.dispatch("changeSchedule");
           })
           .catch((error) => {
             console.log(error);
@@ -495,7 +504,7 @@ export default {
             headers
           )
           .then((res) => {
-            console.log(res.data);
+            this.$store.dispatch("changeSchedule");
           })
           .catch((error) => {
             console.log(error);
@@ -530,6 +539,7 @@ export default {
           )
           .then((res) => {
             this.originalSchedule = { ...this.selectedSchedule };
+            this.$store.dispatch("changeSchedule");
           })
           .catch((error) => {
             console.log(error);
@@ -586,6 +596,32 @@ export default {
     },
     editDescription() {
       this.editDescriptionFlag = true;
+    },
+    openConfirmationDialog() {
+      this.confirmationDialogFlag = true;
+      this.confirm_options = {
+        title: "スケジュールを削除しますか？",
+        description: "削除したスケジュールは元に戻せません。",
+        accept_text: "削除",
+        cancel_text: "キャンセル",
+        btnIcon: "mdi-delete",
+      };
+    },
+    deleteSchedule() {
+      const headers = setHeaders();
+      axios
+        .delete(`/api/v1/schedules/${this.selectedSchedule.id}`, headers)
+        .then((res) => {
+          this.$store.dispatch("setFlash", {
+            text: "スケジュールを削除しました",
+            type: "notice",
+          });
+          this.$store.dispatch("changeSchedule");
+          this.showDialog = false;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
   computed: {
