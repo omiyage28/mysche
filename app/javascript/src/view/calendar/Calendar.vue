@@ -177,34 +177,32 @@ export default {
       let stackIndex = 0;
       let dayEvents = [];
       let startedEvents = [];
-      this.sortedEvents.forEach((event) => {
+      const key = date.format("YYYY-MM-DD");
+      const events = this.eventsByDate[key] || [];
+      events.forEach((event) => {
         let startDate = moment(event.start_date).format("YYYY-MM-DD");
-        let endDate = moment(event.end_date).format("YYYY-MM-DD");
-        let Date = date.format("YYYY-MM-DD");
-        if (startDate <= Date && endDate >= Date) {
-          if (startDate === Date) {
-            [stackIndex, dayEvents] = this.getStackEvents(
-              event,
-              day,
-              date,
-              stackIndex,
-              dayEvents,
-              startedEvents,
-              event.start_date
-            );
-          } else if (day === 0) {
-            [stackIndex, dayEvents] = this.getStackEvents(
-              event,
-              day,
-              date,
-              stackIndex,
-              dayEvents,
-              startedEvents,
-              Date
-            );
-          } else {
-            startedEvents.push(event);
-          }
+        if (startDate === key) {
+          [stackIndex, dayEvents] = this.getStackEvents(
+            event,
+            day,
+            date,
+            stackIndex,
+            dayEvents,
+            startedEvents,
+            event.start_date
+          );
+        } else if (day === 0) {
+          [stackIndex, dayEvents] = this.getStackEvents(
+            event,
+            day,
+            date,
+            stackIndex,
+            dayEvents,
+            startedEvents,
+            key
+          );
+        } else {
+          startedEvents.push(event);
         }
       });
       return dayEvents;
@@ -496,6 +494,19 @@ export default {
         if (startDate > startDate_2) return 1;
         return 0;
       });
+    },
+    eventsByDate() {
+      const map = {};
+      this.events.forEach((event) => {
+        let start = moment(event.start_date);
+        let end = moment(event.end_date);
+        for (let d = start.clone(); d.isSameOrBefore(end); d.add(1, "day")) {
+          const key = d.format("YYYY-MM-DD");
+          if (!map[key]) map[key] = [];
+          map[key].push(event);
+        }
+      });
+      return map;
     },
     scheduleChanged() {
       return this.$store.state.scheduleChanged;
